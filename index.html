@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173b68">
+<title>English Listening Corner</title>
+<style>
+:root{--navy:#173b68;--blue:#2867a8;--pale:#eef5fc;--gold:#ffe66b;--ink:#182334}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+header{background:linear-gradient(135deg,#173b68,#2867a8);color:white;padding:28px 16px;text-align:center}
+header h1{margin:0 0 6px;font-size:clamp(1.7rem,5vw,2.5rem)}header p{margin:0}
+main{max-width:1000px;margin:auto;padding:16px}
+.panel{background:white;border-radius:14px;padding:16px;margin:16px 0;box-shadow:0 3px 14px #102a4410}
+h2{color:var(--navy);margin:0 0 10px}
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.unit-button,.control{border:0;border-radius:10px;padding:12px 14px;background:var(--blue);color:white;font-size:1rem;font-weight:700;cursor:pointer}
+.unit-button{background:var(--pale);color:var(--navy);border:2px solid #d4e4f6}
+.unit-button.active{background:var(--navy);color:white}
+.search{width:100%;font-size:1rem;padding:12px;border:1px solid #bac8d8;border-radius:10px;margin:8px 0}
+.index-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.index-link{display:block;padding:10px 12px;border-radius:9px;background:#f2f6fb;color:#174f89;text-decoration:none;border:1px solid #e0e9f3}
+.index-link:hover,.index-link:focus{background:#e0edfc}
+.lesson{scroll-margin-top:12px}
+.lesson h3{margin:0 0 10px;color:var(--navy)}
+.lesson .unit-label{font-size:.82rem;color:#53677e;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.control.secondary{background:#e7eef7;color:var(--navy)}
+select{padding:10px;border-radius:9px;border:1px solid #bac8d8;background:white;font-size:1rem}
+.reading{font-size:1.12rem;line-height:1.9;white-space:pre-line;background:#fbfcfe;border:1px solid #e5edf5;border-radius:10px;padding:14px;overflow-wrap:anywhere}
+.word{border-radius:3px;padding:1px 0}.word.current{background:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+footer{text-align:center;color:#607086;padding:20px;font-size:.9rem}
+@media(max-width:480px){main{padding:10px}.panel{padding:12px}.reading{font-size:1.06rem}}
+</style>
+</head>
+<body>
+<header><h1>📚 English Listening Corner</h1><p>Choose a unit, find your paragraph, and listen while the words light up.</p></header>
+<main>
+<section class="panel" id="top">
+<h2>1. Choose a unit</h2>
+<div class="unit-grid" id="unitButtons"></div>
+<label for="search"><strong>2. Find a paragraph</strong></label>
+<input id="search" class="search" type="search" placeholder="Search paragraph titles...">
+<div id="index" class="index-list" aria-label="Paragraph index"></div>
+</section>
+<section class="panel">
+<h2>3. Listen and follow the words</h2>
+<p id="chosenHint">Choose a title from the index above.</p>
+<div class="controls">
+<button class="control" id="listen">▶ Listen</button>
+<button class="control secondary" id="pause">⏸ Pause / Resume</button>
+<button class="control secondary" id="stop">⏹ Stop</button>
+<label for="speed">Speed:</label>
+<select id="speed"><option value="0.7">Slow</option><option value="0.85" selected>Normal-slow</option><option value="1">Normal</option><option value="1.15">Fast</option></select>
+</div>
+<div class="reading" id="reading" aria-live="polite">Choose a paragraph above to display it here.</div>
+</section>
+<section id="allLessons"></section>
+</main>
+<footer>English Listening Corner • Made for student practice</footer>
+<script>
+const paragraphs = [{"unit": "Unit 1", "title": "Lesson 1 — A Day in Egypt", "text": "Last week, I spent an amazing day in Egypt with my family. We visited the ancient sites. We bought souvenirs from Khan El Khalili. We enjoyed exploring new places. We took photos of the ancient sites. I love spending time in Egypt and learning about its culture."}, {"unit": "Unit 1", "title": "Lesson 2 — Ras Mohamed National Park", "text": "Ras Mohamed is a special place because it has beautiful nature. It is known for its clear blue sea, colorful fish, and coral reefs. Many people visit Ras Mohamed to swim, snorkel, and dive. The park is home to turtles, dolphins, birds, and many plants. There are also mountains and trees near the beach. It is a protected area, so people must keep it clean and safe."}, {"unit": "Unit 1", "title": "Lesson 3 — Life in the Village", "text": "Life in the village is simple but busy. Many people work hard to support their families. Some go fishing early in the morning. Others work in fish factories or fix boats. In some places, people grow fruits and vegetables. They water the plants, harvest the crops, and feed the animals. On Fridays, they go to the market to sell food. In desert areas, people make carpets and rugs. They spin and dye wool using natural colors. Every day, people help each other and enjoy the quiet life in the village."}, {"unit": "Unit 1", "title": "Sample Test 1 — My School Activities (Email)", "text": "To: amir@gmail.com\nFrom: ahmed@gmail.com\nSubject: My school activities\nHi Amir,\nHow are you? I hope you are doing well. I want to tell you about my school activities. I wake up early. I have my breakfast. In the morning, we stand in line. We salute the flag. We have subjects like math, English, and science. We have a short break. I always play with my friend. We chat and laugh. At the end of my school day, I always feel happy. What about you? Tell me about your school activities.\nBye for now,\nAhmed"}, {"unit": "Unit 1", "title": "A Day at Your School", "text": "My school day starts early. I wake up around 6:30 a.m., get dressed, and eat a quick breakfast. Then I go to school. The school day begins at 7:30 a.m. We stand in line, salute the flag, and sing the national anthem. After that, we go to our classrooms and start our lessons. The first subject is usually Arabic. My favorite subject is P.E. The school day ends at 1:30 p.m. I feel a bit tired, but I'm happy. I go home, eat lunch, rest a little, and then do my homework."}, {"unit": "Unit 1", "title": "Khan El Khalili", "text": "Yesterday, I visited Khan El Khalili with my family. We bought souvenirs from the market. We took many photos. We saw many tourists there. We enjoyed our day at Khan El Khalili."}, {"unit": "Unit 1", "title": "Daily Life in Beni Suef", "text": "In Beni Suef, people wake up early, clean the house and prepare breakfast. Many people work on farms. They grow cotton, beans, and vegetables. Some people work in factories. They make cement and clothes. At noon, families eat lunch together. They eat rice, bread, and vegetables."}, {"unit": "Unit 1", "title": "A Typical School Day (Email)", "text": "From: fady@gmail.com\nTo: mark@gmail.com\nSubject: A typical school day\nHow are you? I hope you're doing well. I wanted to tell you about a normal day at my school here in Egypt. My day starts early. I wake up around 5:30 a.m., get dressed, and have a quick breakfast. At 7:00, I leave the house. The school day begins at 7:30. We start the day outside by standing in line and singing the national anthem. Then we go to our classrooms and begin our lessons. Our first subject is usually English. I really enjoy it because we learn about different topics."}, {"unit": "Unit 2", "title": "Lesson 1 — How Do Plants Help People and the Environment?", "text": "Plants are very important for people and the environment. They give us food like fruits, herbs, and vegetables. Some plants are used in drinks such as mint and hibiscus. Plants also make the air clean and fresh. Trees give shade and make places beautiful. Flowers help people feel happy and relaxed. Plants need water, sunlight, and care to grow well. We should water plants, protect trees, and keep our environment clean. Plants help us live a healthy and happy life."}, {"unit": "Unit 2", "title": "Caring for Plants", "text": "It is important to care for plants. Plants need water and sunlight to grow well. Pulling out weeds is important. Weeds can be harmful to the plants. We should check plants for insects."}, {"unit": "Unit 2", "title": "Lesson 2 — Your Favorite Weather", "text": "My favorite weather is warm and sunny. I like it when the sky is clear. I enjoy walking outside. On sunny days, I can go to the park. I also like wearing sunglasses and sitting in the shade. Warm weather makes me feel happy. I think sunny days are the best!"}, {"unit": "Unit 2", "title": "Lesson 3 — The Importance of the Nile River", "text": "The Nile River is very important to Egypt. It is the longest river in the world. It brings life to the land. Many animals and birds live near the Nile. People use the water for drinking and farming. In the past, the river flooded and gave farmers good soil to grow food. People also travel by boats on the Nile."}, {"unit": "Unit 2", "title": "Lessons 4 & 5 — A Trip to a Famous Place", "text": "We went on a school trip to Wadi El Rayan. We rode the bus for two hours. On the way, we saw green farms and camels. The tour guide showed us lakes, waterfalls, and palm trees. After lunch, we visited Wadi El-Hitan. We saw whale skeletons. It was a great trip full of nature."}, {"unit": "Unit 2", "title": "A Day in Nature (Email)", "text": "To: seif@gmail.com\nFrom: ali@gmail.com\nSubject: A day in nature\nDear Seif,\nHow are you? I want to tell you about our school trip. We spent a wonderful day in nature during our school trip to Wadi El Rayan. On the way, we saw green farms and sand dunes. The weather was nice. The views were beautiful. We walked near lakes and waterfalls and saw tall palm trees. We learned about the animals and plants that live there. After lunch, we went to the desert. We saw the skeletons of ancient whales in Wadi El-Hitan. It was exciting to explore the natural places. It was a day full of fun, learning, and nature. Let's go there together.\nYours,\nAli"}, {"unit": "Unit 2", "title": "Herbs", "text": "There are many herbs in our garden. Herbs like basil, mint, and parsley grow well with care. These herbs are used in many Egyptian dishes. Some add flavor, and others are good for health. Grandpa grows hibiscus and jasmine. Hibiscus is used to make a tasty drink, and jasmine smells nice at night. Growing herbs takes time and hard work. Plants need water, sunlight, and care every day to grow well."}, {"unit": "Unit 2", "title": "Unforgettable Trip", "text": "Our school organized a trip to Wadi El Rayan National Park. We left school early. We rode the bus for two hours. We saw green farms and sand dunes. We took photos near the waterfalls. The trip was full of nature and history."}, {"unit": "Unit 2", "title": "Animals in the Nile River", "text": "The Nile is the longest river in the world. Many animals live in and near the Nile. Big fish like Nile perch and tilapia live there. Crocodiles live in the river too. Many birds come to the river to drink and find food like the kingfisher."}, {"unit": "Unit 3", "title": "Lesson 1 — Jobs That Help the Community", "text": "There are many important jobs in the community. Mechanics fix cars and help people move safely. Water resources engineers make sure we get clean water in our homes and schools. Paramedics help people in emergencies and save lives. Traffic officers help people cross the road. Street cleaners keep the streets clean and make the city beautiful. These jobs help make our community better."}, {"unit": "Unit 3", "title": "Lesson 2 — A Problem in Your Neighborhood", "text": "There is a big problem in my neighborhood. There is a lot of garbage near the park. People throw garbage everywhere. Garbage makes the place look terrible and smell bad. It is bad for the environment. My friends and I want to clean that area. We will bring garbage bags to collect garbage. We will make posters, and hang them. Our classmates will help us clean our neighborhood."}, {"unit": "Unit 3", "title": "Lessons 4 & 5 — Dr. Mostafa El-Sayed", "text": "Dr. Mostafa El-Sayed is a brilliant Egyptian scientist. He loved learning from a young age. He studied at Ain Shams University in Cairo. He became a global expert in chemistry and nanoscience. One of his biggest discoveries is called El-Sayed's Rule. He also worked with gold nanoparticles that help doctors find and treat cancer."}, {"unit": "Unit 3", "title": "Your Future Job", "text": "I want to be a paramedic. I want to help sick and injured people in emergencies. Paramedics work in ambulances and help save lives. They take patients to hospitals quickly and safely. I think this job is very important. I want to become a paramedic. I like helping people in my community."}, {"unit": "Unit 3", "title": "Food Waste", "text": "Food waste is a big problem in Egypt. People make more food than they eat. Restaurants throw leftover food. They waste a lot of food. To solve this problem, we can feed animals leftover. We can plan meals."}, {"unit": "Unit 3", "title": "The Problem of Traffic (Email)", "text": "To: mazen@yahoo.com\nFrom: younis@yahoo.com\nSubject: The problem of traffic\nHi Mazen,\nHow are you? I hope you are doing well. I want to tell you about the problem of traffic. The traffic is noisy and dangerous near my school. We can't cross the road safely. We ask our principal to help us. Can you help me solve this problem?\nBye for now,\nYounis"}, {"unit": "Unit 3", "title": "An Egyptian Hero", "text": "Dr. Mostafa El-Sayed is my favorite Egyptian person. He is a brilliant scientist. He has many important discoveries. He has received many major awards. He is a true hero of science."}, {"unit": "Unit 3", "title": "Unforgettable Trip to Wadi El-Rayan", "text": "Our school organized a trip to Wadi El-Rayan National Park. We left school early and rode the bus for two hours. We saw green farms and sand dunes on the way. Our guide showed us the lakes, the waterfalls, and the palm trees. We visited Wadi El-Hitan. Scientists found the skeletons of ancient whales there."}, {"unit": "Unit 4", "title": "Lesson 1 — Materials in Ancient Egypt", "text": "The Ancient Egyptians used stone, clay, papyrus, linen, wood and even gold. Some materials are still used today in many fields. Ancient Egyptians used stone for pyramids and temples. Stone is used today in modern buildings. Linen is made from flax. Ancient Egyptians wore it every day and even wrapped mummies in it."}, {"unit": "Unit 4", "title": "Lesson 2 — Ways to Save Energy", "text": "Energy is not endless, so we must use it wisely. We should save energy by turning off lights when we are not using them. Shouldn't waste water when brushing our teeth. Walking or biking for short distances instead of using cars. It also saves energy and reduces pollution. Every small action helps protect our planet."}, {"unit": "Unit 4", "title": "Lesson 3 — Gifts from Under the Ground", "text": "Egypt has many valuable things under the ground. We call these things minerals. They are very important for our country. Egypt has a lot of oil, rocks, and metals. We find oil deep under the ground. Oil is a black liquid. Egypt sells oil to other countries. This brings money to Egypt. Egypt also has a lot of natural gas. We can use natural gas for cooking, heating, and making electricity for lights and TVs."}, {"unit": "Unit 4", "title": "Lessons 4 & 5 — The High Dam", "text": "The High Dam is a huge wall that crosses the Nile River in Aswan, Egypt. Egyptians built the High Dam to solve problems with flooding and drought. The High Dam helps people in many ways. Farmers use the water for irrigation to grow vegetables, fruits, and grains all year. The dam also sends electricity to homes, schools, hospitals, and factories across Egypt. It protects cities from dangerous floods and it makes sure people have water even when the river is low."}, {"unit": "Unit 4", "title": "Man-Made Resources", "text": "Man-made resources are things that people create using natural materials. For example, plastic is made from oil and used for bottles, toys, and school supplies. Glass is made from sand and used in windows, mirrors, and cups. One interesting resource is bricks. They are used to build houses, schools, and walls."}, {"unit": "Unit 4", "title": "Ways to Save Water", "text": "Water is a very important natural resource in Egypt. We need it every day for drinking and cooking. Farmers also use it for irrigation to grow crops. We must use water wisely and never waste it. We can save water by turning off the tap when brushing our teeth. Together, we can protect our water and build a strong future."}, {"unit": "Unit 4", "title": "Iron (Email)", "text": "To: zain@gmail.com\nFrom: mohamed@yahoo.com\nSubject: Iron\nDear Zain,\nEgypt has many valuable things under the ground. Egypt has iron in the Eastern Desert. Iron is a strong metal. We use iron to make steel. We use it to build big buildings and cars.\nYours,\nMohamed"}, {"unit": "Unit 4", "title": "Sample Test 2 — Gold (Al-Azhar Students)", "text": "Gold is a beautiful metal. It is yellow and shiny. Ancient Egyptians used gold to make jewelry. It is a valuable metal. Egypt still finds gold in the Eastern Desert."}, {"unit": "Unit 5", "title": "Lesson 1 — Planning a Trip", "text": "I am planning a trip to the Grand Egyptian Museum in Giza. It is one of the most exciting places in Egypt. The museum is near the Pyramids, so I can visit both on the same day. I want to see the statues, and the famous Solar Boat of King Khufu. The museum uses smart screens and amazing shows to teach visitors in a fun way. I can go to the information desk to ask questions and learn more. I think it will be an unforgettable day!"}, {"unit": "Unit 5", "title": "Lesson 2 — A Modern City", "text": "Al Galala is a modern city in Egypt. It is built on a high plateau near Ain Sokhna. The city has clean air and beautiful sea views. It was built to reduce crowding in older cities. Now, it is one of Egypt's smart cities. Al Galala has luxury hotels, beaches, a water park, and a famous cable car. There is also a modern university where students study science, medicine, and engineering. People live and work in Al Galala. They enjoy a quiet and peaceful life."}, {"unit": "Unit 5", "title": "A Place You Visited", "text": "Last month, I visited the Grand Egyptian Museum in Giza. It is a wonderful place full of history. I saw golden jewelry and even real mummies. One of my favorite things was the Lotus Chalice. It looks like a white flower. It was found in King Tutankhamun's tomb. The museum uses smart screens and has amazing shows to help visitors learn. I enjoyed walking around and learning about ancient Egypt. It was a fun and interesting trip. I hope to visit it again soon."}, {"unit": "Unit 5", "title": "Al Galala City", "text": "Al Galala is a new city near the Red Sea. It's part of Egypt's plan to build sustainable cities for the future. In the past, the area was empty. Now it is full of life. People work in hotels, teach, or run businesses. More families are moving to enjoy its peaceful environment. Al Galala is a great example of Egypt's vision for smart cities."}, {"unit": "Unit 5", "title": "Benban Solar Park", "text": "Benban Solar Park provides electricity to homes, schools and hospitals. It uses clean, sustainable energy. It helps reduce pollution. It helps save money and creates thousands of jobs. It is a smart project that supports Egypt's future development."}, {"unit": "Unit 5", "title": "Lotus Chalice", "text": "The Lotus Chalice is a special object made of alabaster. It looks like a white lotus flower with two handles. It was found in the tomb of King Tutankhamun. Today, it is in the Grand Egyptian Museum. This chalice was used in important ceremonies. It is a symbol of eternal life and beauty. People in ancient Egypt believed it helped the king live forever in the afterlife"}, {"unit": "Unit 5", "title": "Extra Reading — The Grand Egyptian Museum", "text": "The Grand Egyptian Museum is one of the newest and most exciting places to visit. It stands near the famous Pyramids in Giza. It was built in a special spot. Visitors can enjoy both ancient and modern Egypt in one place. Inside the museum, there are many interesting things to see. Visitors can look at statues and golden jewelry. The museum also has the Solar Boat that belonged to King Khufu. At the entrance, visitors will find an information desk to ask questions. The museum uses modern technology like smart screens. These tools help people learn about Egypt in a fun and interesting way."}, {"unit": "Unit 5", "title": "Extra Reading — Benban Solar Park", "text": "Benban Solar Park is one of the world's largest solar stations. It has over 6 million solar panels. It provides electricity to homes, schools, hospitals, and factories. It uses clean, sustainable energy. It helps reduce pollution. The project saves money and creates thousands of jobs. It protects the environment. It is a smart project that supports Egypt's future development."}];
+const units = [...new Set(paragraphs.map(p=>p.unit))];
+const unitButtons = document.getElementById('unitButtons');
+const index = document.getElementById('index');
+const search = document.getElementById('search');
+const allLessons = document.getElementById('allLessons');
+let selectedUnit = 'All Units', selected = null, utterance = null, fallbackTimer = null, activeWords = [];
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+paragraphs.forEach((p,i)=>p.id='p'+i);
+function buildUnitButtons(){
+ unitButtons.innerHTML='';
+ ['All Units',...units].forEach(u=>{
+  const b=document.createElement('button'); b.className='unit-button'+(u===selectedUnit?' active':''); b.textContent=u;
+  b.onclick=()=>{selectedUnit=u;buildUnitButtons();renderIndex();}; unitButtons.appendChild(b);
+ });
+}
+function renderIndex(){
+ const q=search.value.trim().toLowerCase();
+ index.innerHTML='';
+ paragraphs.forEach(p=>{
+  if(selectedUnit!=='All Units'&&p.unit!==selectedUnit)return;
+  if(q&&!(`${p.title} ${p.unit} ${p.text}`.toLowerCase().includes(q)))return;
+  const a=document.createElement('a');a.className='index-link';a.href='#'+p.id;a.textContent='🔊 '+p.title;
+  a.onclick=(e)=>{e.preventDefault();showParagraph(p,true);history.replaceState(null,'','#'+p.id);};
+  index.appendChild(a);
+ });
+ if(!index.children.length)index.textContent='No matching paragraphs. Try another search.';
+}
+function renderAll(){
+ allLessons.innerHTML='';
+ units.forEach(u=>{
+  const sec=document.createElement('section');sec.className='panel';sec.innerHTML='<h2>'+u+'</h2>';
+  paragraphs.filter(p=>p.unit===u).forEach(p=>{
+   const article=document.createElement('article');article.className='lesson';article.id=p.id;
+   const label=document.createElement('div');label.className='unit-label';label.textContent=p.unit;
+   const h=document.createElement('h3');h.textContent=p.title;
+   const btn=document.createElement('button');btn.className='control';btn.textContent='▶ Listen to this paragraph';btn.onclick=()=>showParagraph(p,true);
+   const div=document.createElement('div');div.className='reading';div.id='text-'+p.id;div.textContent=p.text;
+   article.append(label,h,btn,div);sec.appendChild(article);
+  });
+  allLessons.appendChild(sec);
+ });
+}
+function showParagraph(p,scroll){
+ stopSpeech();selected=p;
+ document.getElementById('chosenHint').textContent=p.unit+' • '+p.title;
+ const reading=document.getElementById('reading');reading.innerHTML='';
+ activeWords=[];
+ const words=p.text.match(/\S+/g)||[];
+ words.forEach((w,i)=>{const span=document.createElement('span');span.className='word';span.textContent=w;span.dataset.word=i;reading.appendChild(span);reading.appendChild(document.createTextNode(' '));activeWords.push(span);});
+ if(scroll)document.querySelector('.panel:nth-of-type(2)').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function highlight(i){activeWords.forEach((s,j)=>s.classList.toggle('current',j===i));}
+function stopSpeech(){
+ if('speechSynthesis' in window)window.speechSynthesis.cancel();
+ if(fallbackTimer){clearInterval(fallbackTimer);fallbackTimer=null;}
+ utterance=null;activeWords.forEach(s=>s.classList.remove('current'));
+}
+document.getElementById('listen').onclick=()=>{
+ if(!selected){alert('Please choose a paragraph from the index first.');return;}
+ if(!('speechSynthesis' in window)){alert('Speech playback is not supported by this browser. Please try Chrome.');return;}
+ stopSpeech();
+ utterance=new SpeechSynthesisUtterance(selected.text);utterance.lang='en-US';utterance.rate=parseFloat(document.getElementById('speed').value);
+ utterance.onboundary=e=>{if(typeof e.charIndex!=='number')return;const before=selected.text.slice(0,e.charIndex);const i=(before.match(/\S+/g)||[]).length;highlight(Math.min(i,activeWords.length-1));};
+ utterance.onend=()=>{if(fallbackTimer){clearInterval(fallbackTimer);fallbackTimer=null;}activeWords.forEach(s=>s.classList.remove('current'));};
+ utterance.onerror=()=>{if(fallbackTimer){clearInterval(fallbackTimer);fallbackTimer=null;}};
+ window.speechSynthesis.speak(utterance);
+ // Approximate highlight fallback for browsers that do not emit word-boundary events.
+ let i=0;const rate=parseFloat(document.getElementById('speed').value);fallbackTimer=setInterval(()=>{if(!window.speechSynthesis.speaking||i>=activeWords.length){clearInterval(fallbackTimer);fallbackTimer=null;return;}if(!('onboundary' in utterance))highlight(i);i++;},Math.max(180,430/rate));
+};
+document.getElementById('pause').onclick=()=>{if(!('speechSynthesis' in window))return;if(window.speechSynthesis.paused)window.speechSynthesis.resume();else if(window.speechSynthesis.speaking)window.speechSynthesis.pause();};
+document.getElementById('stop').onclick=stopSpeech;
+search.addEventListener('input',renderIndex);
+buildUnitButtons();renderIndex();renderAll();
+const hash=location.hash.slice(1);const fromHash=paragraphs.find(p=>p.id===hash);if(fromHash)showParagraph(fromHash,false);
+</script>
+</body></html>
